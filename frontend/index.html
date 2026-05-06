@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Extractor & Meal Planner</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f6fa;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #2c3e50;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header .logo { font-size: 26px; }
+    header h1 { font-size: 20px; font-weight: 600; }
+    header p { font-size: 13px; color: #aec6d8; margin-top: 2px; }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      background: #fff;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 0 32px;
+    }
+    .tab-btn {
+      padding: 14px 28px;
+      border: none;
+      background: none;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active { color: #2c3e50; border-bottom-color: #e74c3c; }
+    .tab-btn:hover:not(.active) { color: #333; background: #f8f8f8; }
+
+    .container { max-width: 960px; margin: 28px auto; padding: 0 20px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .input-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 24px;
+    }
+    .input-card h2 { font-size: 17px; margin-bottom: 14px; color: #2c3e50; }
+    .url-row { display: flex; gap: 10px; }
+    .url-row input {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1.5px solid #d0d7de;
+      border-radius: 7px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .url-row input:focus { border-color: #2c3e50; }
+    .btn {
+      padding: 11px 22px;
+      border: none;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .btn-primary { background: #e74c3c; color: #fff; }
+    .btn-primary:hover { background: #c0392b; }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: #2c3e50; color: #fff; }
+    .btn-secondary:hover { background: #1a252f; }
+
+    .status {
+      padding: 12px 16px;
+      border-radius: 7px;
+      font-size: 14px;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .status.loading { background: #eaf0fb; color: #2471a3; display: flex; align-items: center; gap: 10px; }
+    .status.error   { background: #fdecea; color: #c0392b; display: block; }
+    .status.success { background: #eafaf1; color: #1e8449; display: block; }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 3px solid #aac4e0;
+      border-top-color: #2471a3;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #result { display: none; }
+    .recipe-header {
+      background: #fff;
+      border-radius: 10px;
+      padding: 22px 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 18px;
+    }
+    .recipe-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .recipe-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .badge {
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f0f3f7;
+      color: #555;
+    }
+    .badge.difficulty-easy   { background: #eafaf1; color: #1e8449; }
+    .badge.difficulty-medium { background: #fef9e7; color: #9a7d0a; }
+    .badge.difficulty-hard   { background: #fdecea; color: #c0392b; }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #e74c3c;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1.5px solid #f0f0f0;
+    }
+    .card.full { grid-column: 1 / -1; }
+
+    .ingredient-row {
+      display: flex;
+      gap: 6px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 14px;
+    }
+    .ingredient-row:last-child { border-bottom: none; }
+    .ingredient-qty { font-weight: 600; min-width: 36px; }
+    .ingredient-unit { color: #777; min-width: 40px; }
+
+    .step { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 24px; height: 24px;
+      background: #2c3e50;
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .nutrition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .nutrition-item { text-align: center; padding: 12px; background: #f8f9fa; border-radius: 8px; }
+    .nutrition-item .value { font-size: 20px; font-weight: 700; color: #2c3e50; }
+    .nutrition-item .label { font-size: 12px; color: #888; margin-top: 3px; }
+
+    .list-item {
+      padding: 6px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #f5f5f5;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item::before { content: "•"; color: #e74c3c; font-weight: 700; flex-shrink: 0; }
+
+    .shop-category { margin-bottom: 14px; }
+    .shop-category h4 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .shop-item { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 3px 0; }
+    .shop-item::before { content: "☐"; color: #999; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      font-size: 14px;
+    }
+    thead { background: #2c3e50; color: #fff; }
+    th { padding: 13px 16px; text-align: left; font-weight: 600; font-size: 13px; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+    .details-btn {
+      padding: 5px 14px;
+      background: #2c3e50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .details-btn:hover { background: #e74c3c; }
+    .empty-state {
+      text-align: center;
+      padding: 50px;
+      color: #aaa;
+      font-size: 15px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 30px 20px;
+    }
+    .modal-overlay.open { display: block; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px 30px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 18px;
+      font-size: 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #888;
+      line-height: 1;
+    }
+    .modal-close:hover { color: #e74c3c; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🍽️</div>
+  <div>
+    <h1>Recipe Extractor & Meal Planner</h1>
+    <p>Paste a recipe blog URL to extract, analyze, and plan your meals</p>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('tab1', this)">📥 Extract Recipe</button>
+  <button class="tab-btn" onclick="switchTab('tab2', this)">📋 Saved Recipes</button>
+</div>
+
+<div class="container">
+
+  <!-- ── TAB 1: EXTRACT ─────────────────────────────────────── -->
+  <div id="tab1" class="tab-content active">
+    <div class="input-card">
+      <h2>Enter a Recipe Blog URL</h2>
+      <div class="url-row">
+        <input type="text" id="urlInput"
+               placeholder="https://www.allrecipes.com/recipe/23891/grilled-cheese-sandwich/" />
+        <button class="btn btn-primary" id="extractBtn" onclick="extractRecipe()">
+          Extract Recipe
+        </button>
+      </div>
+    </div>
+
+    <div class="status loading" id="loadingMsg">
+      <div class="spinner"></div>
+      <span>Scraping page and analysing with Gemini AI… this may take 15–30 seconds</span>
+    </div>
+    <div class="status error" id="errorMsg"></div>
+    <div class="status success" id="successMsg"></div>
+
+    <div id="result"></div>
+  </div>
+
+  <!-- ── TAB 2: HISTORY ─────────────────────────────────────── -->
+  <div id="tab2" class="tab-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 style="font-size:18px; color:#2c3e50;">Previously Extracted Recipes</h2>
+      <button class="btn btn-secondary" onclick="loadHistory()">↻ Refresh</button>
+    </div>
+
+    <div id="historyContainer"></div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ── Details Modal ──────────────────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = "http://localhost:8000";
+
+  function switchTab(tabId, btn) {
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(tabId).classList.add("active");
+    btn.classList.add("active");
+    if (tabId === "tab2") loadHistory();
+  }
+
+  function showLoading()   { hide("errorMsg"); hide("successMsg"); show("loadingMsg"); }
+  function hideLoading()   { hide("loadingMsg"); }
+  function showError(msg)  { hideLoading(); document.getElementById("errorMsg").textContent = msg; show("errorMsg"); }
+  function showSuccess(msg){ document.getElementById("successMsg").textContent = msg; show("successMsg"); setTimeout(()=>hide("successMsg"), 4000); }
+  function show(id)        { document.getElementById(id).style.display = ""; }
+  function hide(id)        { document.getElementById(id).style.display = "none"; }
+
+  // ── Extract Recipe (Tab 1) ────────────────────────────────────
+  async function extractRecipe() {
+    const url = document.getElementById("urlInput").value.trim();
+    if (!url) { showError("Please enter a URL."); return; }
+    if (!url.startsWith("http")) { showError("URL must start with http:// or https://"); return; }
+
+    showLoading();
+    document.getElementById("extractBtn").disabled = true;
+    document.getElementById("result").style.display = "none";
+
+    try {
+      const res = await fetch(`${API_BASE}/extract`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError("Error: " + (data.detail || "Unknown error from server."));
+        return;
+      }
+
+      hideLoading();
+      showSuccess("Recipe extracted and saved successfully!");
+      renderRecipe(data, "result");
+      document.getElementById("result").style.display = "block";
+    } catch (err) {
+      showError("Could not connect to the backend. Make sure it is running on port 8000.");
+    } finally {
+      document.getElementById("extractBtn").disabled = false;
+    }
+  }
+
+  // ── Render Recipe (shared by Tab 1 and Modal) ─────────────────
+  function renderRecipe(r, containerId) {
+    const diffClass = `difficulty-${(r.difficulty || "").toLowerCase()}`;
+
+    // Time badges
+    const times = [
+      r.prep_time  ? `⏱ Prep: ${r.prep_time}`   : null,
+      r.cook_time  ? `🔥 Cook: ${r.cook_time}`   : null,
+      r.total_time ? `⏰ Total: ${r.total_time}`  : null,
+      r.servings   ? `🍽 Serves: ${r.servings}`   : null,
+      r.cuisine    ? `🌍 ${r.cuisine}`             : null,
+    ].filter(Boolean).map(t => `<span class="badge">${t}</span>`).join("");
+
+    // Ingredients
+    const ingredients = (r.ingredients || []).map(i =>
+      `<div class="ingredient-row">
+        <span class="ingredient-qty">${i.quantity || ""}</span>
+        <span class="ingredient-unit">${i.unit || ""}</span>
+        <span>${i.item || ""}</span>
+      </div>`
+    ).join("") || "<p style='color:#aaa;font-size:13px;'>No ingredients found.</p>";
+
+    // Instructions
+    const instructions = (r.instructions || []).map((step, idx) =>
+      `<div class="step">
+        <div class="step-num">${idx + 1}</div>
+        <div>${step}</div>
+      </div>`
+    ).join("") || "<p style='color:#aaa;font-size:13px;'>No instructions found.</p>";
+
+    // Nutrition
+    const n = r.nutrition_estimate || {};
+    const nutrition = `
+      <div class="nutrition-grid">
+        <div class="nutrition-item"><div class="value">${n.calories || "—"}</div><div class="label">Calories</div></div>
+        <div class="nutrition-item"><div class="value">${n.protein || "—"}</div><div class="label">Protein</div></div>
+        <div class="nutrition-item"><div class="value">${n.carbs || "—"}</div><div class="label">Carbs</div></div>
+        <div class="nutrition-item"><div class="value">${n.fat || "—"}</div><div class="label">Fat</div></div>
+      </div>`;
+
+    // Substitutions
+    const subs = (r.substitutions || []).map(s =>
+      `<div class="list-item">${s}</div>`
+    ).join("") || "<p style='color:#aaa;font-size:13px;'>None suggested.</p>";
+
+    // Shopping list
+    const shopping = Object.entries(r.shopping_list || {}).map(([cat, items]) =>
+      `<div class="shop-category">
+        <h4>${cat}</h4>
+        ${items.map(i => `<div class="shop-item">${i}</div>`).join("")}
+      </div>`
+    ).join("") || "<p style='color:#aaa;font-size:13px;'>No shopping list generated.</p>";
+
+    // Related recipes
+    const related = (r.related_recipes || []).map(rr =>
+      `<div class="list-item">${rr}</div>`
+    ).join("") || "<p style='color:#aaa;font-size:13px;'>None suggested.</p>";
+
+    document.getElementById(containerId).innerHTML = `
+      <div class="recipe-header">
+        <h2>${r.title || "Untitled Recipe"}</h2>
+        <p style="font-size:12px;color:#aaa;margin-top:4px;">${r.url || ""}</p>
+        <div class="recipe-meta">
+          ${times}
+          <span class="badge ${diffClass}">${(r.difficulty || "unknown").toUpperCase()}</span>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><h3>🥦 Ingredients</h3>${ingredients}</div>
+        <div class="card"><h3>📋 Instructions</h3>${instructions}</div>
+        <div class="card"><h3>📊 Nutrition (per serving)</h3>${nutrition}</div>
+        <div class="card"><h3>🔄 Substitutions</h3>${subs}</div>
+        <div class="card"><h3>🛒 Shopping List</h3>${shopping}</div>
+        <div class="card"><h3>🍴 Related Recipes</h3>${related}</div>
+      </div>
+    `;
+  }
+
+  // ── Load History (Tab 2) ──────────────────────────────────────
+  async function loadHistory() {
+    const container = document.getElementById("historyContainer");
+    container.innerHTML = "<p style='color:#aaa;padding:16px;'>Loading...</p>";
+
+    try {
+      const res = await fetch(`${API_BASE}/recipes`);
+      const recipes = await res.json();
+
+      if (!recipes.length) {
+        container.innerHTML = `<div class="empty-state">No recipes saved yet. Go to the Extract tab to add some!</div>`;
+        return;
+      }
+
+      // Build table
+      const rows = recipes.map(r => {
+        const date = r.created_at ? new Date(r.created_at).toLocaleDateString() : "—";
+        const diffClass = `difficulty-${(r.difficulty || "").toLowerCase()}`;
+        return `<tr>
+          <td><strong>${r.title || "Untitled"}</strong></td>
+          <td>${r.cuisine || "—"}</td>
+          <td><span class="badge ${diffClass}">${r.difficulty || "—"}</span></td>
+          <td>${date}</td>
+          <td><button class="details-btn" onclick="openModal(${r.id})">Details</button></td>
+        </tr>`;
+      }).join("");
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Recipe Title</th>
+              <th>Cuisine</th>
+              <th>Difficulty</th>
+              <th>Date Extracted</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+
+      // Populate meal planner checkboxes
+    } catch {
+      container.innerHTML = `<div class="empty-state">Could not load recipes. Is the backend running?</div>`;
+    }
+  }
+
+  async function openModal(recipeId) {
+    document.getElementById("modalBody").innerHTML = "<p style='text-align:center;padding:30px;color:#aaa;'>Loading...</p>";
+    document.getElementById("modalOverlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    try {
+      const res = await fetch(`${API_BASE}/recipes/${recipeId}`);
+      const r = await res.json();
+      renderRecipe(r, "modalBody");
+    } catch {
+      document.getElementById("modalBody").innerHTML = "<p style='color:#e74c3c;'>Could not load recipe details.</p>";
+    }
+  }
+
+  function closeModal() {
+    document.getElementById("modalOverlay").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById("modalOverlay")) closeModal();
+  }
+
+  function updateMealPlanBtn() { /* no-op, button always visible */ }
+
+  async function generateMealPlan() {
+    const selected = [...document.querySelectorAll("#meal-checkboxes input:checked")]
+                       .map(cb => parseInt(cb.value));
+    if (selected.length < 3 || selected.length > 5) {
+      alert("Please select between 3 and 5 recipes for the meal plan.");
+      return;
+    }
+
+    document.getElementById("mealPlanResult").innerHTML = "<p style='color:#aaa;'>Generating...</p>";
+
+    try {
+      const res = await fetch(`${API_BASE}/meal-plan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipe_ids: selected })
+      });
+      const data = await res.json();
+      if (!res.ok) { document.getElementById("mealPlanResult").innerHTML = `<p style='color:red;'>${data.detail}</p>`; return; }
+
+      const titles = data.recipes.map(r => `<li>${r.title}</li>`).join("");
+      const shopHtml = Object.entries(data.merged_shopping_list).map(([cat, items]) =>
+        `<div class="shop-category"><h4>${cat}</h4>${items.map(i => `<div class="shop-item">${i}</div>`).join("")}</div>`
+      ).join("");
+
+      document.getElementById("mealPlanResult").innerHTML = `
+        <div class="card" style="margin-top:12px;">
+          <h3>📅 Selected Recipes</h3>
+          <ul style="padding-left:18px;font-size:14px;line-height:2;">${titles}</ul>
+          <h3 style="margin-top:16px;">🛒 Merged Shopping List</h3>
+          ${shopHtml}
+        </div>`;
+    } catch {
+      document.getElementById("mealPlanResult").innerHTML = "<p style='color:red;'>Request failed. Is the backend running?</p>";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("urlInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") extractRecipe();
+    });
+  });
+</script>
+</body>
+</html>

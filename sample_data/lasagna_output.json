@@ -1,0 +1,48 @@
+{
+  "id": 4,
+  "url": "https://www.allrecipes.com/recipe/23600/worlds-best-lasagna/",
+  "title": "World's Best Lasagna",
+  "cuisine": "Italian",
+  "prep_time": "30 mins",
+  "cook_time": "2 hrs 30 mins",
+  "total_time": "3 hrs 15 mins",
+  "servings": 12,
+  "difficulty": "hard",
+  "ingredients": [
+    {"quantity": "1", "unit": "pound", "item": "sweet Italian sausage"},
+    {"quantity": "0.75", "unit": "pound", "item": "lean ground beef"},
+    {"quantity": "0.5", "unit": "cup", "item": "minced onion"},
+    {"quantity": "2", "unit": "cloves", "item": "garlic"},
+    {"quantity": "1", "unit": "(28 ounce) can", "item": "crushed tomatoes"},
+    {"quantity": "12", "unit": "", "item": "lasagna noodles"},
+    {"quantity": "16", "unit": "ounces", "item": "ricotta cheese"},
+    {"quantity": "0.75", "unit": "pound", "item": "mozzarella cheese"},
+    {"quantity": "0.75", "unit": "cup", "item": "grated Parmesan cheese"},
+    {"quantity": "1", "unit": "large", "item": "egg"}
+  ],
+  "instructions": [
+    "Cook sausage, ground beef, onion, and garlic until well browned.",
+    "Stir in crushed tomatoes, tomato sauce, paste, and water. Season and simmer 1.5 hours.",
+    "Cook lasagna noodles in boiling salted water 8-10 minutes. Drain and rinse.",
+    "Mix ricotta cheese with egg and parsley.",
+    "Preheat oven to 375F.",
+    "Layer meat sauce, noodles, ricotta, and mozzarella in a 9x13 dish. Repeat layers.",
+    "Bake covered 25 minutes, then uncovered 25 more minutes.",
+    "Rest 15 minutes before cutting."
+  ],
+  "nutrition_estimate": {"calories": 448, "protein": "30g", "carbs": "37g", "fat": "21g"},
+  "substitutions": [
+    "Use ground turkey instead of ground beef",
+    "Replace sweet Italian sausage with spicy Italian sausage",
+    "Use low-fat ricotta cheese to reduce calories"
+  ],
+  "shopping_list": {
+    "meat": ["sweet Italian sausage", "lean ground beef"],
+    "produce": ["onion", "garlic", "parsley"],
+    "pantry": ["crushed tomatoes", "tomato sauce", "tomato paste", "white sugar", "Italian seasoning"],
+    "dairy": ["ricotta cheese", "mozzarella cheese", "Parmesan cheese"],
+    "bakery": ["lasagna noodles"]
+  },
+  "related_recipes": ["Garlic Bread", "Tomato Mozzarella Salad", "Easy Arugula Salad"],
+  "created_at": "2026-05-05T12:59:51.042500+00:00"
+}

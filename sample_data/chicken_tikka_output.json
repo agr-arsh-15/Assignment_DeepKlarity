@@ -1,0 +1,55 @@
+{
+  "id": 3,
+  "url": "https://www.allrecipes.com/recipe/228293/curry-stand-chicken-tikka-masala-sauce/",
+  "title": "Chicken Tikka Masala",
+  "cuisine": "Indian",
+  "prep_time": "20 mins",
+  "cook_time": "30 mins",
+  "total_time": "50 mins",
+  "servings": 4,
+  "difficulty": "medium",
+  "ingredients": [
+    { "quantity": "1", "unit": "lb", "item": "boneless chicken breast, cubed" },
+    { "quantity": "1", "unit": "cup", "item": "plain yogurt" },
+    { "quantity": "2", "unit": "tbsp", "item": "lemon juice" },
+    { "quantity": "2", "unit": "tsp", "item": "cumin" },
+    { "quantity": "2", "unit": "tsp", "item": "garam masala" },
+    { "quantity": "1", "unit": "tsp", "item": "turmeric" },
+    { "quantity": "1", "unit": "can", "item": "crushed tomatoes (14 oz)" },
+    { "quantity": "1", "unit": "cup", "item": "heavy cream" },
+    { "quantity": "2", "unit": "cloves", "item": "garlic, minced" },
+    { "quantity": "1", "unit": "inch", "item": "fresh ginger, grated" }
+  ],
+  "instructions": [
+    "Marinate chicken in yogurt, lemon juice, and spices for at least 1 hour.",
+    "Grill or broil chicken until slightly charred. Set aside.",
+    "Sauté garlic and ginger in oil over medium heat for 2 minutes.",
+    "Add crushed tomatoes and simmer for 10 minutes.",
+    "Stir in cream and cooked chicken. Simmer for 10 more minutes.",
+    "Adjust seasoning. Serve with rice or naan."
+  ],
+  "nutrition_estimate": {
+    "calories": 480,
+    "protein": "35g",
+    "carbs": "18g",
+    "fat": "28g"
+  },
+  "substitutions": [
+    "Use coconut cream instead of heavy cream for a dairy-free version.",
+    "Replace chicken with paneer or chickpeas for a vegetarian option.",
+    "Substitute Greek yogurt with dairy-free yogurt for a vegan marinade."
+  ],
+  "shopping_list": {
+    "meat": ["boneless chicken breast"],
+    "dairy": ["plain yogurt", "heavy cream"],
+    "produce": ["garlic", "fresh ginger", "lemon"],
+    "pantry": ["crushed tomatoes"],
+    "spices": ["cumin", "garam masala", "turmeric"]
+  },
+  "related_recipes": [
+    "Butter Chicken",
+    "Palak Paneer",
+    "Garlic Naan"
+  ],
+  "created_at": "2025-05-05T11:00:00"
+}

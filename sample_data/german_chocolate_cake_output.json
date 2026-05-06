@@ -1,0 +1,43 @@
+{
+  "id": 5,
+  "url": "https://www.allrecipes.com/german-chocolate-dump-cake-recipe-11940637",
+  "title": "German Chocolate Dump Cake",
+  "cuisine": null,
+  "prep_time": "15 mins",
+  "cook_time": "35 mins",
+  "total_time": "1 hr 50 mins",
+  "servings": 12,
+  "difficulty": "easy",
+  "ingredients": [
+    {"quantity": "1 2/3", "unit": "cups", "item": "toasted pecans"},
+    {"quantity": "1", "unit": "cup", "item": "sweetened flaked coconut"},
+    {"quantity": "1", "unit": "package", "item": "devil's food cake mix"},
+    {"quantity": "1", "unit": "(8 ounce) package", "item": "cream cheese"},
+    {"quantity": "1/2", "unit": "cup", "item": "butter"},
+    {"quantity": "2", "unit": "teaspoons", "item": "vanilla extract"},
+    {"quantity": "1", "unit": "cup", "item": "powdered sugar"},
+    {"quantity": "2/3", "unit": "cup", "item": "semisweet chocolate chips"}
+  ],
+  "instructions": [
+    "Preheat oven to 350F. Grease a 9x13-inch baking pan.",
+    "Sprinkle 1 cup pecans and coconut in the prepared pan.",
+    "Prepare cake mix according to package directions. Pour batter over coconut and pecans.",
+    "Beat cream cheese until smooth. Beat in melted butter, vanilla, salt, and powdered sugar. Stir in chocolate chips and remaining pecans.",
+    "Drop spoonfuls of cream cheese mixture over cake batter. Swirl together with a knife.",
+    "Bake 32-38 minutes until a toothpick comes out clean.",
+    "Cool completely on a wire rack before serving."
+  ],
+  "nutrition_estimate": {"calories": 689, "protein": "7g", "carbs": "94g", "fat": "33g"},
+  "substitutions": [
+    "Use German Chocolate Cake mix instead of devil's food for more authentic flavor",
+    "Add coconut to the cream cheese mixture for extra flavor",
+    "Use chopped walnuts instead of pecans"
+  ],
+  "shopping_list": {
+    "nuts": ["pecans"],
+    "dairy": ["cream cheese", "butter"],
+    "pantry": ["sweetened flaked coconut", "devil's food cake mix", "powdered sugar", "semisweet chocolate chips", "vanilla extract"]
+  },
+  "related_recipes": ["German Chocolate Cake III", "German Apple Cake", "Chocolate Ganache"],
+  "created_at": "2026-05-05T13:05:57.869943+00:00"
+}

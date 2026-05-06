@@ -1,0 +1,45 @@
+{
+  "id": 2,
+  "url": "https://www.simplyrecipes.com/recipes/homemade_pizza/",
+  "title": "Homemade Pizza & Pizza Dough",
+  "cuisine": null,
+  "prep_time": "30 mins",
+  "cook_time": "30 mins",
+  "total_time": "2 hrs 30 mins",
+  "servings": 4,
+  "difficulty": "medium",
+  "ingredients": [
+    {"quantity": "1 1/2 cups", "unit": "ml", "item": "warm water"},
+    {"quantity": "1 package", "unit": null, "item": "active dry yeast"},
+    {"quantity": "3 3/4 cups", "unit": "g", "item": "bread flour"},
+    {"quantity": "2", "unit": "tablespoons", "item": "extra virgin olive oil"},
+    {"quantity": "2", "unit": "teaspoons", "item": "kosher salt"},
+    {"quantity": "1", "unit": "teaspoon", "item": "sugar"},
+    {"quantity": null, "unit": null, "item": "tomato sauce"},
+    {"quantity": null, "unit": null, "item": "mozzarella cheese"},
+    {"quantity": null, "unit": null, "item": "italian sausage"},
+    {"quantity": null, "unit": null, "item": "pepperoni"}
+  ],
+  "instructions": [
+    "Proof the yeast by placing the warm water in a large bowl, sprinkling the yeast over it, and letting it sit for 5 minutes.",
+    "Add flour, salt, sugar, and olive oil. Mix on low speed for a minute, then knead with dough hook for 7-10 minutes.",
+    "Spread olive oil inside a large bowl, place dough in it, cover with plastic wrap, and let rise for 1.5 hours.",
+    "Preheat pizza stone or baking sheet in oven at 475F for at least 30 minutes.",
+    "Shape dough, add toppings, and bake until crust is golden and cheese is bubbly."
+  ],
+  "nutrition_estimate": {"calories": 2500, "protein": "40g", "carbs": "300g", "fat": "100g"},
+  "substitutions": [
+    "Using all-purpose flour instead of bread flour",
+    "Replacing mozzarella with cheddar or parmesan",
+    "Using chicken or bacon instead of Italian sausage"
+  ],
+  "shopping_list": {
+    "dairy": ["mozzarella cheese", "parmesan cheese"],
+    "produce": ["mushrooms", "bell peppers", "fresh basil", "onions"],
+    "pantry": ["bread flour", "sugar", "kosher salt", "extra virgin olive oil", "tomato sauce"],
+    "meat": ["italian sausage", "pepperoni"],
+    "spices": ["yeast"]
+  },
+  "related_recipes": ["Spicy Sausage Pizza", "Grandma Pizza", "Meat Lovers Sheet Pan Pizza"],
+  "created_at": "2026-05-05T11:37:09.246811+00:00"
+}
