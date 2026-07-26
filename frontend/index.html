@@ -3,320 +3,860 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recipe Extractor & Meal Planner</title>
+  <title>Recipe Extractor — AI-Powered Recipe Analysis</title>
+  <meta name="description" content="Extract structured recipe data from any URL using AI. Get ingredients, instructions, nutrition, and shopping lists instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f5f6fa;
-      color: #222;
-      min-height: 100vh;
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #111118;
+      --bg-card: rgba(255,255,255,0.04);
+      --bg-card-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-active: rgba(255,140,0,0.5);
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888aa;
+      --text-muted: #555570;
+      --accent: #ff6b35;
+      --accent-2: #ff9f1c;
+      --accent-glow: rgba(255,107,53,0.25);
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
     }
 
-    header {
-      background: #2c3e50;
-      color: #fff;
-      padding: 18px 32px;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── Background Orbs ─── */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 600px; height: 600px;
+      top: -200px; right: -150px;
+      background: radial-gradient(circle, rgba(255,107,53,0.12) 0%, transparent 70%);
+    }
+    body::after {
+      width: 500px; height: 500px;
+      bottom: -150px; left: -100px;
+      background: radial-gradient(circle, rgba(255,159,28,0.08) 0%, transparent 70%);
+    }
+
+    /* ─── Nav Header ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 32px;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 14px;
+      justify-content: space-between;
+      height: 64px;
     }
-    header .logo { font-size: 26px; }
-    header h1 { font-size: 20px; font-weight: 600; }
-    header p { font-size: 13px; color: #aec6d8; margin-top: 2px; }
-
-    .tabs {
+    .nav-brand {
       display: flex;
-      gap: 0;
-      background: #fff;
-      border-bottom: 2px solid #e0e0e0;
-      padding: 0 32px;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-logo {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 20px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .nav-title {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* ─── Tab Bar ─── */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
     }
     .tab-btn {
-      padding: 14px 28px;
-      border: none;
-      background: none;
-      font-size: 15px;
+      padding: 8px 20px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: 14px;
       font-weight: 500;
+      font-family: 'Inter', sans-serif;
       cursor: pointer;
-      color: #666;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      transition: all 0.2s;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 7px;
     }
-    .tab-btn.active { color: #2c3e50; border-bottom-color: #e74c3c; }
-    .tab-btn:hover:not(.active) { color: #333; background: #f8f8f8; }
+    .tab-btn .tab-icon { font-size: 15px; }
+    .tab-btn:hover { color: var(--text-primary); background: var(--bg-card); }
+    .tab-btn.active {
+      color: var(--accent);
+      background: var(--accent-glow);
+      border-color: var(--border-active);
+    }
 
-    .container { max-width: 960px; margin: 28px auto; padding: 0 20px; }
+    /* ─── Main Layout ─── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
     .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content.active { display: block; animation: fadeInUp 0.35s ease; }
 
-    .input-card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 24px 28px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      margin-bottom: 24px;
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    .input-card h2 { font-size: 17px; margin-bottom: 14px; color: #2c3e50; }
-    .url-row { display: flex; gap: 10px; }
-    .url-row input {
-      flex: 1;
-      padding: 11px 14px;
-      border: 1.5px solid #d0d7de;
-      border-radius: 7px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
+
+    /* ─── Hero Section ─── */
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-top: 16px;
     }
-    .url-row input:focus { border-color: #2c3e50; }
-    .btn {
-      padding: 11px 22px;
-      border: none;
-      border-radius: 7px;
-      font-size: 14px;
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
       font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, opacity 0.2s;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      padding: 6px 14px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(255,107,53,0.3);
+      border-radius: 20px;
     }
-    .btn-primary { background: #e74c3c; color: #fff; }
-    .btn-primary:hover { background: #c0392b; }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-secondary { background: #2c3e50; color: #fff; }
-    .btn-secondary:hover { background: #1a252f; }
+    .hero-title {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #ccccdd 60%, var(--accent-2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
 
-    .status {
-      padding: 12px 16px;
-      border-radius: 7px;
-      font-size: 14px;
-      margin-bottom: 18px;
-      display: none;
+    /* ─── Search Card ─── */
+    .search-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 28px 24px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(10px);
+      transition: border-color var(--transition);
     }
-    .status.loading { background: #eaf0fb; color: #2471a3; display: flex; align-items: center; gap: 10px; }
-    .status.error   { background: #fdecea; color: #c0392b; display: block; }
-    .status.success { background: #eafaf1; color: #1e8449; display: block; }
+    .search-card:focus-within {
+      border-color: rgba(255,107,53,0.35);
+      box-shadow: 0 0 30px rgba(255,107,53,0.08);
+    }
+    .search-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .url-row {
+      display: flex;
+      gap: 12px;
+    }
+    .url-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+    .url-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 15px;
+      pointer-events: none;
+    }
+    #urlInput {
+      width: 100%;
+      padding: 14px 16px 14px 42px;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      outline: none;
+      transition: var(--transition);
+    }
+    #urlInput::placeholder { color: var(--text-muted); }
+    #urlInput:focus {
+      border-color: var(--accent);
+      background: rgba(255,107,53,0.05);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .btn-extract {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--accent), #e55a28);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      box-shadow: 0 4px 20px rgba(255,107,53,0.35);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-extract:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(255,107,53,0.45);
+    }
+    .btn-extract:active { transform: translateY(0); }
+    .btn-extract:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .sample-urls {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .sample-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .sample-chip {
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      background: transparent;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: var(--transition);
+    }
+    .sample-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* ─── Status Messages ─── */
+    .status-box {
+      display: none;       /* hidden by default */
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      margin-bottom: 24px;
+      border: 1px solid transparent;
+      align-items: center;
+      gap: 12px;
+    }
+    /* Only shown when .active is added by JS */
+    .status-box.active { display: flex; }
+
+    /* Visual styles per type */
+    .status-box.type-loading {
+      background: rgba(59,130,246,0.08);
+      border-color: rgba(59,130,246,0.2);
+      color: #93c5fd;
+    }
+    .status-box.type-error {
+      background: rgba(239,68,68,0.08);
+      border-color: rgba(239,68,68,0.2);
+      color: #fca5a5;
+    }
+    .status-box.type-success {
+      background: rgba(34,197,94,0.08);
+      border-color: rgba(34,197,94,0.2);
+      color: #86efac;
+    }
+
     .spinner {
-      width: 18px; height: 18px;
-      border: 3px solid #aac4e0;
-      border-top-color: #2471a3;
+      width: 20px; height: 20px;
+      border: 2.5px solid rgba(147,197,253,0.2);
+      border-top-color: #93c5fd;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.7s linear infinite;
       flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    #result { display: none; }
-    .recipe-header {
-      background: #fff;
-      border-radius: 10px;
-      padding: 22px 28px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      margin-bottom: 18px;
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.5s infinite;
     }
-    .recipe-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-    .recipe-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    @keyframes dots {
+      0%   { content: '.'; }
+      33%  { content: '..'; }
+      66%  { content: '...'; }
+    }
+
+    /* ─── Recipe Output ─── */
+    #result { display: none; }
+
+    .recipe-hero {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .recipe-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+    .recipe-title {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .recipe-url {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      word-break: break-all;
+    }
+    .recipe-url a { color: var(--accent); text-decoration: none; }
+    .recipe-url a:hover { text-decoration: underline; }
+    .recipe-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
     .badge {
-      padding: 5px 13px;
+      padding: 5px 12px;
       border-radius: 20px;
       font-size: 12px;
       font-weight: 600;
-      background: #f0f3f7;
-      color: #555;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-    .badge.difficulty-easy   { background: #eafaf1; color: #1e8449; }
-    .badge.difficulty-medium { background: #fef9e7; color: #9a7d0a; }
-    .badge.difficulty-hard   { background: #fdecea; color: #c0392b; }
+    .badge.easy   { background: rgba(34,197,94,0.1); color: var(--green); border-color: rgba(34,197,94,0.2); }
+    .badge.medium { background: rgba(234,179,8,0.1); color: var(--yellow); border-color: rgba(234,179,8,0.2); }
+    .badge.hard   { background: rgba(239,68,68,0.1); color: var(--red); border-color: rgba(239,68,68,0.2); }
+    /* Muted label inside a badge e.g. "Prep 5 mins" */
+    .badge-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.55;
+    }
+
 
     .cards-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
-      margin-bottom: 16px;
     }
+    @media (max-width: 640px) { .cards-grid { grid-template-columns: 1fr; } }
+
     .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px 22px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      transition: var(--transition);
     }
-    .card h3 {
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #e74c3c;
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1.5px solid #f0f0f0;
+    .card:hover {
+      border-color: rgba(255,255,255,0.12);
+      background: var(--bg-card-hover);
     }
     .card.full { grid-column: 1 / -1; }
 
-    .ingredient-row {
+    .card-header {
       display: flex;
-      gap: 6px;
-      padding: 6px 0;
-      border-bottom: 1px solid #f5f5f5;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-icon {
+      width: 34px; height: 34px;
+      background: var(--accent-glow);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--text-secondary);
+    }
+
+    /* Ingredient rows */
+    .ingredient-row {
+      display: grid;
+      grid-template-columns: 48px 96px 1fr;
+      align-items: baseline;
+      gap: 4px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
       font-size: 14px;
+      transition: var(--transition);
     }
     .ingredient-row:last-child { border-bottom: none; }
-    .ingredient-qty { font-weight: 600; min-width: 36px; }
-    .ingredient-unit { color: #777; min-width: 40px; }
+    .ingredient-row:hover { color: var(--text-primary); }
+    .ingredient-qty { font-weight: 700; color: var(--accent); }
+    .ingredient-unit { color: var(--text-muted); font-size: 13px; }
 
-    .step { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+    /* Steps */
+    .step {
+      display: flex;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.6;
+      align-items: flex-start;
+    }
     .step:last-child { border-bottom: none; }
     .step-num {
-      width: 24px; height: 24px;
-      background: #2c3e50;
-      color: #fff;
+      width: 26px; height: 26px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
       flex-shrink: 0;
     }
 
-    .nutrition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .nutrition-item { text-align: center; padding: 12px; background: #f8f9fa; border-radius: 8px; }
-    .nutrition-item .value { font-size: 20px; font-weight: 700; color: #2c3e50; }
-    .nutrition-item .label { font-size: 12px; color: #888; margin-top: 3px; }
+    /* Nutrition */
+    .nutrition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .nutrition-item {
+      text-align: center;
+      padding: 16px 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+    .nutrition-item:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .nutrition-value { font-size: 22px; font-weight: 800; color: var(--text-primary); }
+    .nutrition-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
+    /* List items */
     .list-item {
-      padding: 6px 0;
-      font-size: 14px;
-      border-bottom: 1px solid #f5f5f5;
       display: flex;
       align-items: flex-start;
-      gap: 8px;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
     }
     .list-item:last-child { border-bottom: none; }
-    .list-item::before { content: "•"; color: #e74c3c; font-weight: 700; flex-shrink: 0; }
+    .list-bullet {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
 
-    .shop-category { margin-bottom: 14px; }
-    .shop-category h4 {
-      font-size: 12px;
+    /* Shopping list */
+    .shop-category { margin-bottom: 18px; }
+    .shop-category:last-child { margin-bottom: 0; }
+    .shop-cat-title {
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      color: #888;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
+      color: var(--accent);
+      margin-bottom: 8px;
     }
-    .shop-item { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 3px 0; }
-    .shop-item::before { content: "☐"; color: #999; }
+    .shop-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: var(--transition);
+      user-select: none;
+    }
+    .shop-item:hover { color: var(--text-primary); }
+    /* Hide the real checkbox but keep it accessible */
+    .shop-checkbox {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+      pointer-events: none;
+    }
+    /* Custom visual checkbox */
+    .shop-custom-check {
+      width: 18px; height: 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      background: transparent;
+      position: relative;
+    }
+    .shop-checkbox:checked + .shop-custom-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .shop-checkbox:checked + .shop-custom-check::after {
+      content: '';
+      display: block;
+      width: 5px; height: 9px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translateY(-1px);
+    }
+    .shop-item:hover .shop-custom-check { border-color: var(--accent); }
+    /* Strike through text when checked */
+    .shop-checkbox:checked ~ .shop-item-text {
+      text-decoration: line-through;
+      opacity: 0.45;
+    }
 
+    /* ─── History Tab ─── */
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .history-title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .btn-refresh {
+      padding: 10px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .btn-refresh:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .recipe-table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
       font-size: 14px;
     }
-    thead { background: #2c3e50; color: #fff; }
-    th { padding: 13px 16px; text-align: left; font-weight: 600; font-size: 13px; }
-    td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafafa; }
-    .details-btn {
-      padding: 5px 14px;
-      background: #2c3e50;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
+    thead tr {
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid var(--border);
     }
-    .details-btn:hover { background: #e74c3c; }
-    .empty-state {
-      text-align: center;
-      padding: 50px;
-      color: #aaa;
-      font-size: 15px;
+    th {
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+    td { padding: 14px 20px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+    td:first-child { color: var(--text-primary); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { transition: var(--transition); }
+    tbody tr:hover td { background: rgba(255,255,255,0.03); }
+
+    .details-btn {
+      padding: 6px 16px;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .details-btn:hover {
+      background: var(--accent);
+      color: #fff;
     }
 
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 42px; margin-bottom: 14px; }
+    .empty-text { font-size: 15px; }
+    .empty-sub { font-size: 13px; margin-top: 8px; color: var(--text-muted); }
+
+    /* ─── Modal ─── */
     .modal-overlay {
       display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
       overflow-y: auto;
       padding: 30px 20px;
     }
-    .modal-overlay.open { display: block; }
+    .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal {
-      background: #fff;
-      border-radius: 12px;
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 28px 30px;
+      background: #13131a;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      max-width: 800px;
+      width: 100%;
+      padding: 32px;
       position: relative;
+      animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     .modal-close {
       position: absolute;
-      top: 14px; right: 18px;
-      font-size: 22px;
-      background: none;
-      border: none;
+      top: 20px; right: 20px;
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       cursor: pointer;
-      color: #888;
-      line-height: 1;
+      color: var(--text-secondary);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
     }
-    .modal-close:hover { color: #e74c3c; }
+    .modal-close:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: var(--red); }
+
+    /* ─── Stats bar ─── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .stat-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 800; color: var(--text-primary); }
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">🍽️</div>
-  <div>
-    <h1>Recipe Extractor & Meal Planner</h1>
-    <p>Paste a recipe blog URL to extract, analyze, and plan your meals</p>
+<!-- ─── Navigation ─── -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">🍽️</div>
+    <div>
+      <div class="nav-title">RecipeAI</div>
+    </div>
+    <span class="nav-badge">Powered by Groq</span>
   </div>
-</header>
 
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('tab1', this)">📥 Extract Recipe</button>
-  <button class="tab-btn" onclick="switchTab('tab2', this)">📋 Saved Recipes</button>
-</div>
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab1Btn" onclick="switchTab('tab1', this)">
+      <span class="tab-icon">⚡</span> Extract
+    </button>
+    <button class="tab-btn" id="tab2Btn" onclick="switchTab('tab2', this)">
+      <span class="tab-icon">📚</span> History
+    </button>
+  </div>
+</nav>
 
-<div class="container">
+<!-- ─── Main Content ─── -->
+<main>
 
-  <!-- ── TAB 1: EXTRACT ─────────────────────────────────────── -->
+  <!-- ══ TAB 1: EXTRACT ══ -->
   <div id="tab1" class="tab-content active">
-    <div class="input-card">
-      <h2>Enter a Recipe Blog URL</h2>
+
+    <div class="hero">
+      <div class="hero-eyebrow">✨ AI-Powered</div>
+      <h1 class="hero-title">Extract Any Recipe Instantly</h1>
+      <p class="hero-sub">Paste a recipe blog URL and get structured ingredients, instructions, nutrition facts, and a smart shopping list — powered by Groq LLaMA 3.3.</p>
+    </div>
+
+    <div class="search-card">
+      <div class="search-label">Recipe URL</div>
       <div class="url-row">
-        <input type="text" id="urlInput"
-               placeholder="https://www.allrecipes.com/recipe/23891/grilled-cheese-sandwich/" />
-        <button class="btn btn-primary" id="extractBtn" onclick="extractRecipe()">
-          Extract Recipe
+        <div class="url-input-wrap">
+          <span class="url-icon">🔗</span>
+          <input
+            type="text"
+            id="urlInput"
+            placeholder="https://www.allrecipes.com/recipe/..."
+            autocomplete="off"
+          />
+        </div>
+        <button class="btn-extract" id="extractBtn" onclick="extractRecipe()">
+          <span id="extractBtnIcon">⚡</span>
+          <span id="extractBtnText">Extract Recipe</span>
         </button>
+      </div>
+      <div class="sample-urls">
+        <span class="sample-label">Try:</span>
+        <button class="sample-chip" onclick="useSample('grilled-cheese')">Grilled Cheese</button>
+        <button class="sample-chip" onclick="useSample('tikka-masala')">Chicken Tikka</button>
+        <button class="sample-chip" onclick="useSample('lasagna')">Lasagna</button>
+        <button class="sample-chip" onclick="useSample('pizza')">Homemade Pizza</button>
       </div>
     </div>
 
-    <div class="status loading" id="loadingMsg">
+    <div class="status-box type-loading" id="loadingMsg">
       <div class="spinner"></div>
-      <span>Scraping page and analysing with Gemini AI… this may take 15–30 seconds</span>
+      <div>
+        <strong>Analyzing recipe<span class="loading-dots"></span></strong>
+        <div style="font-size:12px;margin-top:3px;opacity:0.7;">Scraping page and extracting data with Groq AI — this may take 15–30 seconds</div>
+      </div>
     </div>
-    <div class="status error" id="errorMsg"></div>
-    <div class="status success" id="successMsg"></div>
+    <div class="status-box type-error" id="errorMsg">
+      <span style="font-size:18px;">⚠️</span>
+      <span id="errorText"></span>
+    </div>
+    <div class="status-box type-success" id="successMsg">
+      <span style="font-size:18px;">✅</span>
+      <span id="successText"></span>
+    </div>
 
     <div id="result"></div>
   </div>
 
-  <!-- ── TAB 2: HISTORY ─────────────────────────────────────── -->
+  <!-- ══ TAB 2: HISTORY ══ -->
   <div id="tab2" class="tab-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h2 style="font-size:18px; color:#2c3e50;">Previously Extracted Recipes</h2>
-      <button class="btn btn-secondary" onclick="loadHistory()">↻ Refresh</button>
+    <div class="history-header">
+      <div>
+        <h2 class="history-title">Saved Recipes</h2>
+        <p style="font-size:14px;color:var(--text-muted);margin-top:4px;">All previously extracted recipes from your session</p>
+      </div>
+      <button class="btn-refresh" onclick="loadHistory()">
+        <span>↻</span> Refresh
+      </button>
     </div>
-
     <div id="historyContainer"></div>
   </div>
 
-</div><!-- /container -->
+</main>
 
-<!-- ── Details Modal ──────────────────────────────────────────── -->
+<!-- ─── Modal ─── -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal" id="modalContent">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -327,244 +867,321 @@
 <script>
   const API_BASE = "http://localhost:8000";
 
-  function switchTab(tabId, btn) {
-    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.getElementById(tabId).classList.add("active");
-    btn.classList.add("active");
-    if (tabId === "tab2") loadHistory();
+  const SAMPLES = {
+    'grilled-cheese': 'https://www.allrecipes.com/recipe/23891/grilled-cheese-sandwich/',
+    'tikka-masala':   'https://www.allrecipes.com/recipe/228293/curry-stand-chicken-tikka-masala-sauce/',
+    'lasagna':        'https://www.allrecipes.com/recipe/23600/worlds-best-lasagna/',
+    'pizza':          'https://www.allrecipes.com/recipe/7016/homemade-pizza/',
+  };
+
+  function useSample(key) {
+    document.getElementById('urlInput').value = SAMPLES[key] || '';
+    document.getElementById('urlInput').focus();
   }
 
-  function showLoading()   { hide("errorMsg"); hide("successMsg"); show("loadingMsg"); }
-  function hideLoading()   { hide("loadingMsg"); }
-  function showError(msg)  { hideLoading(); document.getElementById("errorMsg").textContent = msg; show("errorMsg"); }
-  function showSuccess(msg){ document.getElementById("successMsg").textContent = msg; show("successMsg"); setTimeout(()=>hide("successMsg"), 4000); }
-  function show(id)        { document.getElementById(id).style.display = ""; }
-  function hide(id)        { document.getElementById(id).style.display = "none"; }
+  // ─── Tab Switching ───────────────────────────────────────────
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+    if (tabId === 'tab2') loadHistory();
+  }
 
-  // ── Extract Recipe (Tab 1) ────────────────────────────────────
+  // ─── Status helpers ──────────────────────────────────────────
+  function showLoading() {
+    hideAll();
+    document.getElementById('loadingMsg').classList.add('active');
+    document.getElementById('extractBtnIcon').textContent = '';
+    document.getElementById('extractBtnText').textContent = 'Extracting…';
+  }
+  function hideLoading() {
+    document.getElementById('loadingMsg').classList.remove('active');
+    document.getElementById('extractBtnIcon').textContent = '⚡';
+    document.getElementById('extractBtnText').textContent = 'Extract Recipe';
+  }
+  function showError(msg) {
+    hideLoading();
+    document.getElementById('errorText').textContent = msg;
+    document.getElementById('errorMsg').classList.add('active');
+  }
+  function showSuccess(msg) {
+    document.getElementById('successText').textContent = msg;
+    document.getElementById('successMsg').classList.add('active');
+    setTimeout(() => document.getElementById('successMsg').classList.remove('active'), 5000);
+  }
+  function hideAll() {
+    ['loadingMsg','errorMsg','successMsg'].forEach(id =>
+      document.getElementById(id).classList.remove('active')
+    );
+  }
+  function show(id) { document.getElementById(id).classList.add('active'); }
+  function hide(id) { document.getElementById(id).classList.remove('active'); }
+
+  // ─── Extract Recipe ──────────────────────────────────────────
   async function extractRecipe() {
-    const url = document.getElementById("urlInput").value.trim();
-    if (!url) { showError("Please enter a URL."); return; }
-    if (!url.startsWith("http")) { showError("URL must start with http:// or https://"); return; }
+    const url = document.getElementById('urlInput').value.trim();
+    if (!url) { showError('Please enter a recipe URL.'); return; }
+    if (!url.startsWith('http')) { showError('URL must start with http:// or https://'); return; }
 
     showLoading();
-    document.getElementById("extractBtn").disabled = true;
-    document.getElementById("result").style.display = "none";
+    document.getElementById('extractBtn').disabled = true;
+    // Clear old result before new fetch
+    const resultEl = document.getElementById('result');
+    resultEl.innerHTML = '';
+    resultEl.style.display = 'none';
 
     try {
       const res = await fetch(`${API_BASE}/extract`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
       });
       const data = await res.json();
 
       if (!res.ok) {
-        showError("Error: " + (data.detail || "Unknown error from server."));
+        showError('Error: ' + (data.detail || 'Unknown error from server.'));
         return;
       }
 
       hideLoading();
-      showSuccess("Recipe extracted and saved successfully!");
-      renderRecipe(data, "result");
-      document.getElementById("result").style.display = "block";
-    } catch (err) {
-      showError("Could not connect to the backend. Make sure it is running on port 8000.");
+      showSuccess('Recipe extracted and saved!');
+      renderRecipe(data, 'result');
+      resultEl.style.display = 'block';
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {
+      showError('Could not connect to the backend. Make sure it is running on port 8000.');
     } finally {
-      document.getElementById("extractBtn").disabled = false;
+      document.getElementById('extractBtn').disabled = false;
     }
   }
 
-  // ── Render Recipe (shared by Tab 1 and Modal) ─────────────────
+  // ─── Render Recipe ───────────────────────────────────────────
   function renderRecipe(r, containerId) {
-    const diffClass = `difficulty-${(r.difficulty || "").toLowerCase()}`;
+    const diff = (r.difficulty || '').toLowerCase();
+    const diffLabel = diff ? diff.charAt(0).toUpperCase() + diff.slice(1) : '—';
 
-    // Time badges
-    const times = [
-      r.prep_time  ? `⏱ Prep: ${r.prep_time}`   : null,
-      r.cook_time  ? `🔥 Cook: ${r.cook_time}`   : null,
-      r.total_time ? `⏰ Total: ${r.total_time}`  : null,
-      r.servings   ? `🍽 Serves: ${r.servings}`   : null,
-      r.cuisine    ? `🌍 ${r.cuisine}`             : null,
-    ].filter(Boolean).map(t => `<span class="badge">${t}</span>`).join("");
+    const metaBadges = [
+      r.prep_time  ? `<span class="badge">⏱️ <span class="badge-label">Prep</span> ${r.prep_time}</span>` : '',
+      r.cook_time  ? `<span class="badge">🔥 <span class="badge-label">Cook</span> ${r.cook_time}</span>` : '',
+      r.total_time ? `<span class="badge">⏰ <span class="badge-label">Total</span> ${r.total_time}</span>` : '',
+      r.servings   ? `<span class="badge">🍽️ ${r.servings} servings</span>` : '',
+      r.cuisine    ? `<span class="badge">🌍 ${r.cuisine}</span>` : '',
+      diff         ? `<span class="badge ${diff}">${diffLabel}</span>` : '',
+    ].filter(Boolean).join('');
 
-    // Ingredients
     const ingredients = (r.ingredients || []).map(i =>
       `<div class="ingredient-row">
-        <span class="ingredient-qty">${i.quantity || ""}</span>
-        <span class="ingredient-unit">${i.unit || ""}</span>
-        <span>${i.item || ""}</span>
+        <span class="ingredient-qty">${i.quantity || ''}</span>
+        <span class="ingredient-unit">${i.unit || ''}</span>
+        <span>${i.item || ''}</span>
       </div>`
-    ).join("") || "<p style='color:#aaa;font-size:13px;'>No ingredients found.</p>";
+    ).join('') || `<p style="color:var(--text-muted);font-size:13px;">No ingredients found.</p>`;
 
-    // Instructions
     const instructions = (r.instructions || []).map((step, idx) =>
       `<div class="step">
         <div class="step-num">${idx + 1}</div>
         <div>${step}</div>
       </div>`
-    ).join("") || "<p style='color:#aaa;font-size:13px;'>No instructions found.</p>";
+    ).join('') || `<p style="color:var(--text-muted);font-size:13px;">No instructions found.</p>`;
 
-    // Nutrition
     const n = r.nutrition_estimate || {};
     const nutrition = `
       <div class="nutrition-grid">
-        <div class="nutrition-item"><div class="value">${n.calories || "—"}</div><div class="label">Calories</div></div>
-        <div class="nutrition-item"><div class="value">${n.protein || "—"}</div><div class="label">Protein</div></div>
-        <div class="nutrition-item"><div class="value">${n.carbs || "—"}</div><div class="label">Carbs</div></div>
-        <div class="nutrition-item"><div class="value">${n.fat || "—"}</div><div class="label">Fat</div></div>
+        <div class="nutrition-item"><div class="nutrition-value">${n.calories || '—'}</div><div class="nutrition-label">Calories</div></div>
+        <div class="nutrition-item"><div class="nutrition-value">${n.protein || '—'}</div><div class="nutrition-label">Protein</div></div>
+        <div class="nutrition-item"><div class="nutrition-value">${n.carbs || '—'}</div><div class="nutrition-label">Carbs</div></div>
+        <div class="nutrition-item"><div class="nutrition-value">${n.fat || '—'}</div><div class="nutrition-label">Fat</div></div>
       </div>`;
 
-    // Substitutions
     const subs = (r.substitutions || []).map(s =>
-      `<div class="list-item">${s}</div>`
-    ).join("") || "<p style='color:#aaa;font-size:13px;'>None suggested.</p>";
+      `<div class="list-item"><div class="list-bullet"></div><div>${s}</div></div>`
+    ).join('') || `<p style="color:var(--text-muted);font-size:13px;">None suggested.</p>`;
 
-    // Shopping list
-    const shopping = Object.entries(r.shopping_list || {}).map(([cat, items]) =>
-      `<div class="shop-category">
-        <h4>${cat}</h4>
-        ${items.map(i => `<div class="shop-item">${i}</div>`).join("")}
-      </div>`
-    ).join("") || "<p style='color:#aaa;font-size:13px;'>No shopping list generated.</p>";
+    // Shopping list: filter out empty categories, use real label+checkbox
+    const shopEntries = Object.entries(r.shopping_list || {}).filter(([, items]) => Array.isArray(items) && items.length > 0);
+    const uid = containerId + '_' + Date.now();
+    const shopping = shopEntries.length
+      ? shopEntries.map(([cat, items], ci) =>
+          `<div class="shop-category">
+            <div class="shop-cat-title">${cat}</div>
+            ${items.map((item, ii) => {
+              const id = `chk_${uid}_${ci}_${ii}`;
+              return `<label class="shop-item" for="${id}">
+                <input type="checkbox" id="${id}" class="shop-checkbox">
+                <span class="shop-custom-check"></span>
+                <span class="shop-item-text">${item}</span>
+              </label>`;
+            }).join('')}
+          </div>`
+        ).join('')
+      : `<p style="color:var(--text-muted);font-size:13px;">No shopping list generated.</p>`;
 
-    // Related recipes
     const related = (r.related_recipes || []).map(rr =>
-      `<div class="list-item">${rr}</div>`
-    ).join("") || "<p style='color:#aaa;font-size:13px;'>None suggested.</p>";
+      `<div class="list-item"><div class="list-bullet"></div><div>${rr}</div></div>`
+    ).join('') || `<p style="color:var(--text-muted);font-size:13px;">None suggested.</p>`;
+
+    const urlDisplay = r.url
+      ? `<a href="${r.url}" target="_blank" rel="noopener">${r.url}</a>`
+      : '';
 
     document.getElementById(containerId).innerHTML = `
-      <div class="recipe-header">
-        <h2>${r.title || "Untitled Recipe"}</h2>
-        <p style="font-size:12px;color:#aaa;margin-top:4px;">${r.url || ""}</p>
-        <div class="recipe-meta">
-          ${times}
-          <span class="badge ${diffClass}">${(r.difficulty || "unknown").toUpperCase()}</span>
-        </div>
+      <div class="recipe-hero">
+        <div class="recipe-title">${r.title || 'Untitled Recipe'}</div>
+        ${r.url ? `<div class="recipe-url">${urlDisplay}</div>` : ''}
+        <div class="recipe-meta">${metaBadges}</div>
       </div>
 
       <div class="cards-grid">
-        <div class="card"><h3>🥦 Ingredients</h3>${ingredients}</div>
-        <div class="card"><h3>📋 Instructions</h3>${instructions}</div>
-        <div class="card"><h3>📊 Nutrition (per serving)</h3>${nutrition}</div>
-        <div class="card"><h3>🔄 Substitutions</h3>${subs}</div>
-        <div class="card"><h3>🛒 Shopping List</h3>${shopping}</div>
-        <div class="card"><h3>🍴 Related Recipes</h3>${related}</div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🥦</div>
+            <div class="card-title">Ingredients</div>
+          </div>
+          ${ingredients}
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📋</div>
+            <div class="card-title">Instructions</div>
+          </div>
+          ${instructions}
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📊</div>
+            <div class="card-title">Nutrition (per serving)</div>
+          </div>
+          ${nutrition}
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🔄</div>
+            <div class="card-title">Substitutions</div>
+          </div>
+          ${subs}
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🛒</div>
+            <div class="card-title">Shopping List</div>
+          </div>
+          ${shopping}
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🍴</div>
+            <div class="card-title">You Might Also Like</div>
+          </div>
+          ${related}
+        </div>
       </div>
     `;
   }
 
-  // ── Load History (Tab 2) ──────────────────────────────────────
+  // ─── Load History ────────────────────────────────────────────
   async function loadHistory() {
-    const container = document.getElementById("historyContainer");
-    container.innerHTML = "<p style='color:#aaa;padding:16px;'>Loading...</p>";
+    const container = document.getElementById('historyContainer');
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⌛</div><div class="empty-text">Loading recipes…</div></div>`;
 
     try {
       const res = await fetch(`${API_BASE}/recipes`);
       const recipes = await res.json();
 
       if (!recipes.length) {
-        container.innerHTML = `<div class="empty-state">No recipes saved yet. Go to the Extract tab to add some!</div>`;
+        container.innerHTML = `
+          <div class="recipe-table-wrap">
+            <div class="empty-state">
+              <div class="empty-icon">🍽️</div>
+              <div class="empty-text">No recipes saved yet</div>
+              <div class="empty-sub">Go to the Extract tab and paste a recipe URL to get started!</div>
+            </div>
+          </div>`;
         return;
       }
 
-      // Build table
       const rows = recipes.map(r => {
-        const date = r.created_at ? new Date(r.created_at).toLocaleDateString() : "—";
-        const diffClass = `difficulty-${(r.difficulty || "").toLowerCase()}`;
+        const date = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+        const diff = (r.difficulty || '').toLowerCase();
         return `<tr>
-          <td><strong>${r.title || "Untitled"}</strong></td>
-          <td>${r.cuisine || "—"}</td>
-          <td><span class="badge ${diffClass}">${r.difficulty || "—"}</span></td>
+          <td>${r.title || 'Untitled'}</td>
+          <td>${r.cuisine || '—'}</td>
+          <td><span class="badge ${diff}">${diff ? diff.charAt(0).toUpperCase() + diff.slice(1) : '—'}</span></td>
           <td>${date}</td>
-          <td><button class="details-btn" onclick="openModal(${r.id})">Details</button></td>
+          <td><button class="details-btn" onclick="openModal(${r.id})">View Details</button></td>
         </tr>`;
-      }).join("");
+      }).join('');
 
       container.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Recipe Title</th>
-              <th>Cuisine</th>
-              <th>Difficulty</th>
-              <th>Date Extracted</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>`;
-
-      // Populate meal planner checkboxes
+        <div class="recipe-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Recipe Title</th>
+                <th>Cuisine</th>
+                <th>Difficulty</th>
+                <th>Extracted On</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
     } catch {
-      container.innerHTML = `<div class="empty-state">Could not load recipes. Is the backend running?</div>`;
+      container.innerHTML = `
+        <div class="recipe-table-wrap">
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <div class="empty-text">Could not load recipes</div>
+            <div class="empty-sub">Make sure the backend is running on port 8000</div>
+          </div>
+        </div>`;
     }
   }
 
+  // ─── Modal ───────────────────────────────────────────────────
   async function openModal(recipeId) {
-    document.getElementById("modalBody").innerHTML = "<p style='text-align:center;padding:30px;color:#aaa;'>Loading...</p>";
-    document.getElementById("modalOverlay").classList.add("open");
-    document.body.style.overflow = "hidden";
+    document.getElementById('modalBody').innerHTML = `
+      <div style="text-align:center;padding:40px;color:var(--text-muted);">
+        <div class="spinner" style="margin:0 auto 16px;"></div>
+        <div>Loading recipe details…</div>
+      </div>`;
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
 
     try {
       const res = await fetch(`${API_BASE}/recipes/${recipeId}`);
       const r = await res.json();
-      renderRecipe(r, "modalBody");
+      renderRecipe(r, 'modalBody');
     } catch {
-      document.getElementById("modalBody").innerHTML = "<p style='color:#e74c3c;'>Could not load recipe details.</p>";
+      document.getElementById('modalBody').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <div class="empty-text">Could not load recipe details.</div>
+        </div>`;
     }
   }
 
   function closeModal() {
-    document.getElementById("modalOverlay").classList.remove("open");
-    document.body.style.overflow = "";
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
   }
   function closeModalOutside(e) {
-    if (e.target === document.getElementById("modalOverlay")) closeModal();
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
   }
 
-  function updateMealPlanBtn() { /* no-op, button always visible */ }
-
-  async function generateMealPlan() {
-    const selected = [...document.querySelectorAll("#meal-checkboxes input:checked")]
-                       .map(cb => parseInt(cb.value));
-    if (selected.length < 3 || selected.length > 5) {
-      alert("Please select between 3 and 5 recipes for the meal plan.");
-      return;
-    }
-
-    document.getElementById("mealPlanResult").innerHTML = "<p style='color:#aaa;'>Generating...</p>";
-
-    try {
-      const res = await fetch(`${API_BASE}/meal-plan`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipe_ids: selected })
-      });
-      const data = await res.json();
-      if (!res.ok) { document.getElementById("mealPlanResult").innerHTML = `<p style='color:red;'>${data.detail}</p>`; return; }
-
-      const titles = data.recipes.map(r => `<li>${r.title}</li>`).join("");
-      const shopHtml = Object.entries(data.merged_shopping_list).map(([cat, items]) =>
-        `<div class="shop-category"><h4>${cat}</h4>${items.map(i => `<div class="shop-item">${i}</div>`).join("")}</div>`
-      ).join("");
-
-      document.getElementById("mealPlanResult").innerHTML = `
-        <div class="card" style="margin-top:12px;">
-          <h3>📅 Selected Recipes</h3>
-          <ul style="padding-left:18px;font-size:14px;line-height:2;">${titles}</ul>
-          <h3 style="margin-top:16px;">🛒 Merged Shopping List</h3>
-          ${shopHtml}
-        </div>`;
-    } catch {
-      document.getElementById("mealPlanResult").innerHTML = "<p style='color:red;'>Request failed. Is the backend running?</p>";
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("urlInput").addEventListener("keydown", e => {
-      if (e.key === "Enter") extractRecipe();
+  // ─── Keyboard shortcuts ──────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('urlInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') extractRecipe();
     });
   });
 </script>

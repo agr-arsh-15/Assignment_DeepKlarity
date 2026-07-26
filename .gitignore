@@ -1,2 +1,13 @@
 .env
 backend/.env
+
+# Python
+backend/venv/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# macOS
+.DS_Store
