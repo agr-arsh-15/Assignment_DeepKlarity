@@ -3,12 +3,13 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python Version" />
   <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/LangChain-Framework-FFF?style=for-the-badge&logo=langchain&logoColor=black" alt="LangChain" />
-  <img src="https://img.shields.io/badge/Groq-Supported-f55036?style=for-the-badge" alt="Groq" />
+  <img src="https://img.shields.io/badge/LangChain-Framework-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
+  <img src="https://img.shields.io/badge/Groq-Supported-F55036?style=for-the-badge" alt="Groq" />
   <img src="https://img.shields.io/badge/OpenAI-Supported-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
   <img src="https://img.shields.io/badge/Gemini-Supported-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini" />
   <img src="https://img.shields.io/badge/PostgreSQL-Supported-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/License-MIT-green.style=for-the-badge" alt="License MIT" />
+  <img src="https://img.shields.io/badge/SQLite-Supported-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License MIT" />
 </p>
 
 A full-stack, AI-powered web application that turns any recipe blog URL into structured data. It scrapes web pages, uses Large Language Models (Groq, OpenAI, Google Gemini, or Ollama) via LangChain to extract recipe components, generates nutritional approximations, categorizes ingredients for shopping, and stores everything in PostgreSQL or SQLite.
