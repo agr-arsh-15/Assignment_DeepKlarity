@@ -6,6 +6,9 @@ python-dotenv
 requests
 beautifulsoup4
 langchain
+langchain-core
+langchain-community
 langchain-groq
+langchain-openai
+langchain-google-genai
 pydantic
-

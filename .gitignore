@@ -1,13 +1,40 @@
+# Secret / Environment files
 .env
+.env.*
+!.env.example
 backend/.env
+backend/.env.*
+!backend/.env.example
 
-# Python
+# Python Virtual Environments
+venv/
 backend/venv/
+env/
+.venv/
+
+# Python Cache & Bytecode
+__pycache__/
 backend/__pycache__/
 *.pyc
 *.pyo
 *.pyd
-__pycache__/
+.pytest_cache/
 
-# macOS
+# Databases & SQLite local files
+*.db
+*.sqlite3
+
+# Operating System Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
